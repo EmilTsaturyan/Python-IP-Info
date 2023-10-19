@@ -5,6 +5,7 @@ from selenium.webdriver.chrome.options import Options
 import time
 import pyfiglet
 from colorama import Fore
+import os
 
 def get_info_by_ip(ip='', option=1):
     options = Options()
@@ -77,7 +78,7 @@ def get_info_by_ip(ip='', option=1):
         driver.quit()
 
 def txt_file(info):
-    with open('info/info.txt', 'a') as fl:
+    with open('info.txt', 'a') as fl:
         for i in info:
             fl.write(f'{i}: {info[i]}\n')
 
@@ -101,12 +102,13 @@ def welcome_message():
             print(info)
             exit()
         txt_file(info)
-        print(Fore.LIGHTBLUE_EX + 'The information saved in info/info.txt')
+        print(Fore.LIGHTBLUE_EX + 'The information saved in info.txt')
     except Exception:
         print('Choose the correct option!')
         exit()
 
 def main():
+    os.system('cls')
     welcome_message()
     
 

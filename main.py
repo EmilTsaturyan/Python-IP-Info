@@ -13,7 +13,6 @@ def get_info_by_ip(ip='', option=1):
     options.add_argument('--disable-gpu')
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     driver = webdriver.Chrome(options=options)
-    actionChains = ActionChains(driver)
     info = {
         "query": None,
         "status": None,
@@ -41,22 +40,14 @@ def get_info_by_ip(ip='', option=1):
     }
     keys = list(info.keys())
     try:
-        driver.get('https://members.ip-api.com/')
+        driver.get(f'https://members.ip-api.com/#{ip}')
         time.sleep(3)
         if option == 1:
-            driver.find_element(By.CSS_SELECTOR, '#sc > div > div.col-md-8.mx-auto > form > div > div.col-auto > button').click()
             for i in range(2, 47, 2):
                 data = driver.find_element(By.CSS_SELECTOR, f'#codeOutput > span:nth-child({i})')
                 info[keys[0]] = data.text
                 keys = keys[1:]
         elif option == 2:
-            input_place = driver.find_element(By.CSS_SELECTOR, '#sc > div > div.col-md-8.mx-auto > form > div > div.col > div > input')
-            actionChains.double_click(input_place).perform()
-            time.sleep(1)
-            input_place.send_keys(ip)
-            time.sleep(1)
-            driver.find_element(By.CSS_SELECTOR, '#sc > div > div.col-md-8.mx-auto > form > div > div.col-auto > button').click()
-            time.sleep(1)
             status = driver.find_element(By.CSS_SELECTOR, '#codeOutput > span:nth-child(6)')
             time.sleep(1)
             if status.text == '"fail"':
@@ -80,7 +71,12 @@ def get_info_by_ip(ip='', option=1):
 def txt_file(info):
     with open('info.txt', 'a') as fl:
         for i in info:
-            fl.write(f'{i}: {info[i]}\n')
+            fl.write(f'\n{i}: {info[i]}')
+
+def google_maps(info):
+    link = f'https://www.google.com/maps/@{info["lat"]},{info["lon"]},19z?entry=ttu'
+    info['google maps'] = link
+    return link
 
 def welcome_message():
     Banner = pyfiglet.figlet_format('Python  IP  INFO', font='standard')
@@ -101,16 +97,17 @@ def welcome_message():
         if info == 'Wrong IP!':
             print(info)
             exit()
-        txt_file(info)
         print(Fore.LIGHTBLUE_EX + 'The information saved in info.txt')
-    except Exception:
-        print('Choose the correct option!')
+        print(Fore.LIGHTGREEN_EX + f'Google maps: {google_maps(info)}')
+        txt_file(info)
+    except Exception as ex:
+        print(ex)
         exit()
+
 
 def main():
     os.system('cls')
     welcome_message()
-    
 
 if __name__ == '__main__':
     main()

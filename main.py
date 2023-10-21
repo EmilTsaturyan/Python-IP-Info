@@ -2,11 +2,18 @@ import requests
 import pyfiglet
 from colorama import Fore
 import os
+import platform
 
 colors = [
           Fore.RED, Fore.LIGHTRED_EX, Fore.MAGENTA, Fore.LIGHTMAGENTA_EX, Fore.BLUE, Fore.LIGHTBLUE_EX, Fore.CYAN, Fore.LIGHTCYAN_EX, 
           Fore.GREEN, Fore.LIGHTGREEN_EX, Fore.YELLOW, Fore.LIGHTYELLOW_EX, Fore.LIGHTRED_EX, Fore.RED, Fore.MAGENTA, Fore.LIGHTMAGENTA_EX
           ]
+
+def clear():
+    if platform.system == 'Windows':
+        os.system('cls')
+    else:
+        os.system('clear')
 
 def get_public_ip():
     response = requests.get('http://ip-api.com/json/')
@@ -37,7 +44,7 @@ def google_maps(info):
     return link
 
 def welcome_message():
-    os.system('cls')
+    clear()
     Banner = pyfiglet.figlet_format('Python  IP  INFO', font='standard')
     print(Fore.MAGENTA + Banner)
 

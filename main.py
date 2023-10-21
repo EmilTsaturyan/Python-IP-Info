@@ -1,77 +1,35 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.chrome.options import Options
-import time
+import requests
 import pyfiglet
 from colorama import Fore
 import os
 
-def get_info_by_ip(ip='', option=1):
-    options = Options()
-    options.add_argument('--headless')
-    options.add_argument('--disable-gpu')
-    options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    driver = webdriver.Chrome(options=options)
-    info = {
-        "query": None,
-        "status": None,
-        "continent": None,
-        "continentCode": None,
-        "country": None,
-        "countryCode": None,
-        "region": None,
-        "regionName": None,
-        "city": None,
-        "district": None,
-        "zip": None,
-        "lat": None,
-        "lon": None,
-        "timezone": None,
-        "offset": None,
-        "currency": None,
-        "isp": None,
-        "org": None,
-        "as": None,
-        "asname": None,
-        "mobile": None,
-        "proxy": None,
-        "hosting": None
-    }
-    keys = list(info.keys())
-    try:
-        driver.get(f'https://members.ip-api.com/#{ip}')
-        time.sleep(3)
-        if option == 1:
-            for i in range(2, 47, 2):
-                data = driver.find_element(By.CSS_SELECTOR, f'#codeOutput > span:nth-child({i})')
-                info[keys[0]] = data.text
-                keys = keys[1:]
-        elif option == 2:
-            status = driver.find_element(By.CSS_SELECTOR, '#codeOutput > span:nth-child(6)')
-            time.sleep(1)
-            if status.text == '"fail"':
-                return 'Wrong IP!'
-            else:
-                for i in range(2, 47, 2):
-                    data = driver.find_element(By.CSS_SELECTOR, f'#codeOutput > span:nth-child({i})')
-                    info[keys[0]] = data.text
-                    keys = keys[1:]
-        elif option == 3:
-            exit()
-        else:
-            return False
-        return info
-    except Exception as ex:
-        print(ex)
-    finally:
-        driver.close()
-        driver.quit()
+colors = [
+          Fore.RED, Fore.LIGHTRED_EX, Fore.MAGENTA, Fore.LIGHTMAGENTA_EX, Fore.BLUE, Fore.LIGHTBLUE_EX, Fore.CYAN, Fore.LIGHTCYAN_EX, 
+          Fore.GREEN, Fore.LIGHTGREEN_EX, Fore.YELLOW, Fore.LIGHTYELLOW_EX, Fore.LIGHTRED_EX, Fore.RED, Fore.MAGENTA, Fore.LIGHTMAGENTA_EX
+          ]
+
+def get_public_ip():
+    response = requests.get('http://ip-api.com/json/')
+    data = response.json()
+    return data
+
+def get_info_by_ip(ip):
+    response = requests.get(f'http://ip-api.com/json/{ip}')
+    response = response.json()
+    if response['status'] == 'success':
+        return response
+    else:
+        return False
+
+def printing_info(info):
+    for k, i in zip(colors, info):
+        print(k + f'{i}: {info[i]}')
 
 def txt_file(info):
     with open('info.txt', 'a') as fl:
         for i in info:
             fl.write(f'\n{i}: {info[i]}')
+    print('All inforamtion succesfully saved in info.txt')
 
 def google_maps(info):
     link = f'https://www.google.com/maps/@{info["lat"]},{info["lon"]},19z?entry=ttu'
@@ -79,35 +37,46 @@ def google_maps(info):
     return link
 
 def welcome_message():
+    os.system('cls')
     Banner = pyfiglet.figlet_format('Python  IP  INFO', font='standard')
     print(Fore.MAGENTA + Banner)
 
+def choosing_options():
     print(Fore.BLUE + '[1] - My IP')
     print(Fore.MAGENTA + '[2] - Other IP')
     print(Fore.LIGHTGREEN_EX + '[3] - Exit')
     try:
         option = int(input('Choose the option: '))
-        if option == 3:
-            exit()
-        elif option == 2:
-            ip = input(Fore.MAGENTA + 'Enter the ip: ')
-            info = get_info_by_ip(ip, 2)
-        elif option == 1:
-            info = get_info_by_ip(option=1)
-        if info == 'Wrong IP!':
-            print(info)
-            exit()
-        print(Fore.LIGHTBLUE_EX + 'The information saved in info.txt')
-        print(Fore.LIGHTGREEN_EX + f'Google maps: {google_maps(info)}')
-        txt_file(info)
-    except Exception as ex:
-        print(ex)
+        if option in (1, 2, 3):
+            return option
+        else:
+            return False
+    except ValueError:
+        print('Please select right option')
         exit()
-
-
+    
 def main():
-    os.system('cls')
     welcome_message()
+    option = choosing_options()
+    if option == 1:
+        info = get_public_ip()
+    elif option == 2:
+        welcome_message()
+        ip = input(Fore.LIGHTMAGENTA_EX + 'Enter the ip: ')
+        info = get_info_by_ip(ip)
+        if not info:
+            print('Wrong IP')
+            exit()
+    elif option == 3:
+        exit()
+    else:
+        print('Please select right option')
+        exit()
+    
+    google_maps(info)
+    printing_info(info)
+    txt_file(info)
+    
 
 if __name__ == '__main__':
     main()

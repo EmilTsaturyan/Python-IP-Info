@@ -1,1 +1,15 @@
-
+status: success
+country: Armenia
+countryCode: AM
+region: KT
+regionName: Kotayk
+city: Byureghavan
+zip: 
+lat: 40.3107
+lon: 44.598
+timezone: Asia/Yerevan
+isp: Hachn ISP Ltd.
+org: HACHN
+as: AS51342 Hachn ISP Ltd.
+query: 176.124.97.10
+google maps: https://www.google.com/maps/@40.3107,44.598,19z?entry=ttu
